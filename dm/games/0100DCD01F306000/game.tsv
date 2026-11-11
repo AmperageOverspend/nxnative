@@ -1,4 +1,4 @@
-# Mina the Hollower update 1.0.5, SDK 21.4.3, Yacht Club Games' own engine on NVN. Plays on the Mac and the iPhone (README.md).
+# Mina the Hollower 1.0.6, SDK 21.4.3, Yacht Club Games' engine on NVN. Mac validation and the original 1.0.5 contribution are described in README.md.
 # Its 114 shaders (110 keys) are in RomFS shaders.pak.yc, a YCD archive that shader_split.py reads (ycd_shaders).
 
 # ---- Identity ----
@@ -11,10 +11,12 @@ ipa	MinaTheHollower.ipa
 app_category	public.app-category.adventure-games
 
 # ---- Versions ----
-# The update NSP's CNMT names v262144 (nx_extract --contents); its file name has no [v...] tag
+# The bundled shader tables are 1.0.6 only. Packing 1.0.5 derives its own shader tables, even when both updates are present.
+# Both builds keep their registered arena cuts; 1.0.5 comes from AmperageOverspend's PR #1021.
+build	v327680	1.0.6	main=e86ae07bdfec77ee10d50d2163d0ff2e	sdk=cb82ed52216313df5626154efb64d45f
 build	v262144	1.0.5	main=2bc484524f0c86bc7c2228d6fbfb0817	sdk=cb82ed52216313df5626154efb64d45f
-package	v262144
-shader_versions	v262144
+package	v327680
+shader_versions	v327680
 
 # ---- Files ----
 # every module main imports from
