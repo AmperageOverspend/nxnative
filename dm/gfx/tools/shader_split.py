@@ -2345,10 +2345,11 @@ def ycd_files(d):
     offset (from the record's +8) gives the file table: one 0x20-byte pair per file, a name record {0, u32 name length, u32 alignment 0x10, i32 offset of the name} and a data record
     {u32 size, 0x40, u32 alignment 0x10, i32 offset of the data}, each offset counted from its record's +8. The table runs up to the names, which follow it. shaders.pak.yc: 229 files,
     shaders/<name>.vert.bin and .frag.bin (each one stage), a .meta beside each (the binding names) and shaders/shader.db (no shader code)"""
-    if len(d) < 0x20 or d[:4] != YCD: return None
+    if len(d) < 0x20 or d[:8] != YCD + b'\x08\0\0\0': return None
     hsize = struct.unpack_from('<I', d, 8)[0]
     if hsize + 0x10 > len(d): return None
     e = hsize + 8 + struct.unpack_from('<i', d, hsize + 0xc)[0]
+    if not hsize + 0x10 <= e <= len(d) - 0x20: return None
     files, names = [], len(d)
     while e + 0x20 <= names:
         zero, nlen, _, noff = struct.unpack_from('<IIIi', d, e)
@@ -2373,6 +2374,7 @@ def ycd_shaders(d, label):
         st = {'.vert.bin': 'vs', '.frag.bin': 'ps', '.comp.bin': 'cs'}.get(nm[nm.rfind('.', 0, len(nm) - 4):] if nm.endswith('.bin') else '')
         if not st: continue
         where = f'{label}/{nm}'
+        if size < 8: red(f'{where}: shorter than its control and code lengths')
         nctl, ncode = field(d, '<II', p, where)
         if 8 + nctl + ncode != size: red(f'{where}: control {nctl:#x} + code {ncode:#x} bytes do not fill its {size:#x} bytes')
         ctl, code = d[p + 8:p + 8 + nctl], d[p + 8 + nctl:p + size]

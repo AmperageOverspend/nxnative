@@ -67,7 +67,7 @@ Every patch bound tighter than it could be: the open gaps, then the blocked, kep
 | `build` → `game` | 60 fps frame step and render scale (ksys::VFR) | frame rate | blocked: frame-step stubs have no function-matched form yet | judgement | 1 | [The Legend of Zelda: Breath of the Wild](../../dm/games/01007EF00011E000/README.md) | the game's own frame code; the frame-step state page is general |
 | `build` → `game` | 60 fps frame step: the KIDS frame task and frame-rate block | frame rate | blocked: frame-step stubs have no function-matched form yet | judgement | 1 | [Hyrule Warriors: Age of Calamity](../../dm/games/01002B00111A2000/README.md) | the game's own frame code; only the host's frame-step state page is shared. Fire Emblem: Three Houses and Taiko Risshiden V DX run on KTGL too, with other frame code |
 | `build` → `game` | frame step floor 2 → 1 vsync, and its frame step | frame rate | blocked: frame-step stubs have no function-matched form yet | judgement | 1 | [Paper Mario: The Thousand-Year Door](../../dm/games/0100ECD018EBE000/README.md) | the game's own clock floor and step |
-| `build` → `game` | TLSF arenas "Default Mem" and "Render Mem": 4 GB → 1 GB and 256 MB | address space | blocked: only one build of the game (1.0.5) on hand to check a fingerprint against | checked: the arena init and both call sites disassembled on 1.0.5, 2026-11-03 | 1 | [Mina the Hollower](../../dm/games/0100DCD01F306000/README.md) | the sizes are immediates in the engine's startup; a function-matched rule could carry them over the game's updates |
+| `build` → `game` | TLSF arenas "Default Mem" and "Render Mem": 4 GB → 1 GB and 256 MB | address space | blocked: the 1.0.5 binary is not available here to verify a shared function fingerprint; its offsets are from PR #1021 | checked: 1.0.5 as reported in PR #1021; both call sites and the arena init disassembled on 1.0.6, 2026-11-11 | 1 | [Mina the Hollower](../../dm/games/0100DCD01F306000/README.md) | the sizes are immediates in the engine's startup; a function-matched rule could carry them over the game's updates |
 
 ## Summary
 
@@ -85,7 +85,7 @@ Every patch bound tighter than it could be: the open gaps, then the blocked, kep
 | [Luigi's Mansion 3](#luigis-mansion-3) | 0 | 0 | 0 | 0 | 1 | `build` → `engine` |
 | [Mario + Rabbids Kingdom Battle](#mario--rabbids-kingdom-battle) | 6 | 0 | 0 | 0 | 0 | `build` → `game` |
 | [Mario + Rabbids® Sparks of Hope](#mario--rabbids-sparks-of-hope) | 7 | 0 | 0 | 0 | 0 | `build` → `game` ×2 |
-| [Mina the Hollower](#mina-the-hollower) | 2 | 0 | 0 | 0 | 0 | `build` → `game` |
+| [Mina the Hollower](#mina-the-hollower) | 4 | 0 | 0 | 0 | 0 | `build` → `game` |
 | [Monster Hunter Rise](#monster-hunter-rise) | 0 | 0 | 0 | 0 | 1 | `build` → `engine` |
 | [Need For Speed™ Hot Pursuit Remastered](#need-for-speed-hot-pursuit-remastered) | 1 | 0 | 0 | 0 | 5 | `build` → `game`, `build` → `engine` |
 | [NieR:Automata The End of YoRHa Edition (010056B015FE8000)](#nierautomata-the-end-of-yorha-edition-010056b015fe8000) | 8 | 0 | 0 | 0 | 1 | `build` → `game` ×2 |
@@ -375,9 +375,12 @@ Every patch bound tighter than it could be: the open gaps, then the blocked, kep
 
 [Mina the Hollower](../../dm/games/0100DCD01F306000/README.md), `0100DCD01F306000`, [patches.py](../../dm/games/0100DCD01F306000/patches.py).
 
-- **`build` → `game`**, address space, blocked: only one build of the game (1.0.5) on hand to check a fingerprint against, checked: the arena init and both call sites disassembled on 1.0.5, 2026-11-03: TLSF arenas "Default Mem" and "Render Mem": 4 GB → 1 GB and 256 MB. The sizes are immediates in the engine's startup; a function-matched rule could carry them over the game's updates
+- **`build` → `game`**, address space, blocked: the 1.0.5 binary is not available here to verify a shared function fingerprint; its offsets are from PR #1021, checked: 1.0.5 as reported in PR #1021; both call sites and the arena init disassembled on 1.0.6, 2026-11-11: TLSF arenas "Default Mem" and "Render Mem": 4 GB → 1 GB and 256 MB. The sizes are immediates in the engine's startup; a function-matched rule could carry them over the game's updates
 
-- **1.0.5 `main`** `2bc48452…` ([patches.py:9](../../dm/games/0100DCD01F306000/patches.py#L9))
+- **1.0.6 `main`** `e86ae07b…` ([patches.py:6](../../dm/games/0100DCD01F306000/patches.py#L6))
+  - cut `+0x6d8cc`: TLSF arena "Default Mem" size mov x1,#0x100000000 → mov x1,#0x40000000 (4 GB → 1 GB)
+  - cut `+0x6dc2c`: TLSF arena "Render Mem" size mov x1,#0x100000000 → mov x1,#0x10000000 (4 GB → 256 MB)
+- **1.0.5 `main`** `2bc48452…` ([patches.py:15](../../dm/games/0100DCD01F306000/patches.py#L15))
   - cut `+0x6d8ac`: TLSF arena "Default Mem" size mov x1,#0x100000000 → mov x1,#0x40000000 (4 GB → 1 GB)
   - cut `+0x6dc0c`: TLSF arena "Render Mem" size mov x1,#0x100000000 → mov x1,#0x10000000 (4 GB → 256 MB)
 

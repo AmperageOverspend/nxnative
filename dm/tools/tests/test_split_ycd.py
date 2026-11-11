@@ -3,6 +3,7 @@ one stage per <name>.vert.bin / .frag.bin, are read as single-stage programs (yc
 import os
 import struct
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -39,6 +40,25 @@ def archive(files, hsize=0xc0):
 
 
 class Ycd(unittest.TestCase):
+    def test_file_scan_keeps_ycd_through_the_prefilter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'shaders.pak.yc'
+            path.write_bytes(archive([('shaders/a.frag.bin', stage('ps'))]))
+            _, shaders, _, extra = ss.scan_file((str(path), path.name))
+            self.assertEqual(len(shaders), 1)
+            self.assertEqual(extra, {})
+
+    def test_unknown_version_and_root_outside_the_table_are_rejected(self):
+        good = archive([('shaders/a.frag.bin', stage('ps'))])
+        for offset, value in [(4, 9), (0xcc, -0x100), (0xcc, len(good))]:
+            d = bytearray(good)
+            struct.pack_into('<i', d, offset, value)
+            self.assertIsNone(ss.ycd_files(bytes(d)))
+
+    def test_shader_header_does_not_read_into_the_next_member(self):
+        with self.assertRaisesRegex(SystemExit, 'shorter than its control and code lengths'):
+            ss.ycd_shaders(archive([('shaders/a.frag.bin', b'1234'), ('other', stage('ps'))]), '/shaders.pak.yc')
+
     def test_files_are_listed_from_the_table(self):
         files = [('shaders/copy.frag.bin', stage('ps')), ('shaders/copy.frag.meta', b'meta'), ('shaders/shader.db', b'db' * 9)]
         d = archive(files)
